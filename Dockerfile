@@ -20,7 +20,8 @@ RUN apt update && apt install -y --no-install-recommends\
 	curl openjdk-21-jre openssl\
 	g++ libssl-dev python-dev-is-python3 libpq-dev\
 	pkg-config libutfcpp-dev\
-	gnupg unixodbc-dev net-tools unzip wget
+	gnupg unixodbc-dev net-tools unzip wget\
+	freetds-dev
 
 # Download babelfish sources
 WORKDIR /workplace
@@ -109,7 +110,17 @@ WORKDIR ${PG_SRC}/contrib/babelfishpg_tds
 RUN make -j ${JOBS} && make PG_CONFIG=${PG_CONFIG} install
 
 WORKDIR ${PG_SRC}/contrib/babelfishpg_tsql
-RUN make -j ${JOBS} && make PG_CONFIG=${PG_CONFIG} install
+RUN PG_CPPFLAGS='-I/usr/include -DENABLE_TDS_LIB' SHLIB_LINK='-lsybdb -L/usr/lib/x86_64-linux-gnu' make -j ${JOBS}
+RUN PG_CPPFLAGS='-I/usr/include -DENABLE_TDS_LIB' SHLIB_LINK='-lsybdb -L/usr/lib/x86_64-linux-gnu' make PG_CONFIG=${PG_CONFIG} install
+
+# Build and install tds_fdw extension
+ENV TDS_FDW_VERSION=2.0.5
+WORKDIR /workplace
+RUN wget https://github.com/tds-fdw/tds_fdw/archive/v${TDS_FDW_VERSION}.tar.gz
+RUN tar -xvzf v${TDS_FDW_VERSION}.tar.gz
+WORKDIR /workplace/tds_fdw-${TDS_FDW_VERSION}
+RUN make USE_PGXS=1 PG_CONFIG=${PG_CONFIG}
+RUN make USE_PGXS=1 PG_CONFIG=${PG_CONFIG} install
 
 # Run stage
 FROM base AS runner
@@ -124,7 +135,8 @@ COPY --from=builder ${BABELFISH_HOME} .
 # Install runtime dependencies
 RUN apt update && apt install -y --no-install-recommends\
 	libssl3 openssl libldap-2.5-0 libxml2 libpam0g uuid libossp-uuid16\
-	libxslt1.1 libicu70 libpq5 unixodbc
+	libxslt1.1 libicu70 libpq5 unixodbc\
+	libsybdb5
 
 # Enable data volume
 ENV BABELFISH_DATA=${POSTGRES_USER_HOME}/data

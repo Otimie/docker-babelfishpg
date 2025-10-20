@@ -98,6 +98,54 @@ The Babelfish version tags are listed at https://github.com/babelfish-for-postgr
 
 
 
+## Linked Servers Support
+
+This image includes support for linked servers through the `tds_fdw` extension. Linked servers enable connecting to external SQL Server or other TDS-compatible database instances.
+
+### Features Included
+
+- **FreeTDS Library:** Provides the underlying TDS protocol support
+- **tds_fdw Extension:** Foreign Data Wrapper for TDS protocol
+- **babelfishpg_tsql with TDS Support:** Built with `-DENABLE_TDS_LIB` flag to enable linked server functionality
+
+### Using Linked Servers
+
+The `tds_fdw` extension is automatically installed during database initialization. To use linked servers:
+
+1. **Create a server connection:**
+   ```sql
+   CREATE SERVER remote_server
+   FOREIGN DATA WRAPPER tds_fdw
+   OPTIONS (servername 'remote.host.com', port '1433', database 'remote_db');
+   ```
+
+2. **Create user mapping:**
+   ```sql
+   CREATE USER MAPPING FOR babelfish_user
+   SERVER remote_server
+   OPTIONS (username 'remote_user', password 'remote_password');
+   ```
+
+3. **Create foreign table:**
+   ```sql
+   CREATE FOREIGN TABLE remote_table (
+       id INT,
+       name VARCHAR(100)
+   ) SERVER remote_server
+   OPTIONS (table_name 'actual_table_name');
+   ```
+
+4. **Query the remote table:**
+   ```sql
+   SELECT * FROM remote_table;
+   ```
+
+For more information about tds_fdw, see the [tds_fdw documentation](https://github.com/tds-fdw/tds_fdw).
+
+### FreeTDS License
+
+FreeTDS is licensed under the GNU Library General Public License (LGPL). For details, see the [FreeTDS website](https://www.freetds.org/).
+
 ## Other Extensions
 
 Adding other extensions is outside of the scope of this project. They may not be able to be used through Babelfish and may cause issues with the Babelfish extensions or not work as expected.

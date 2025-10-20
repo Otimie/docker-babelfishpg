@@ -1,0 +1,29 @@
+FreeTDS License Information
+===========================
+
+This Docker image includes the FreeTDS library, which is licensed under the
+GNU Library General Public License (LGPL).
+
+FreeTDS is a set of libraries for Unix and Linux that allows programs to 
+natively talk to Microsoft SQL Server and Sybase databases. This image uses
+FreeTDS to enable the tds_fdw extension and linked server support in the
+babelfishpg_tsql extension.
+
+License: GNU Library General Public License (LGPL)
+Project: https://www.freetds.org/
+Source: https://github.com/FreeTDS/freetds
+
+For the complete LGPL license text, visit:
+https://www.gnu.org/licenses/lgpl-2.1.html
+
+The FreeTDS library is dynamically linked in this image. As permitted by
+the LGPL, this does not require the entire Docker image to be licensed
+under the LGPL.
+
+To obtain the FreeTDS source code:
+1. Visit https://www.freetds.org/
+2. Or install via apt: apt-get source freetds
+
+Package Information (Ubuntu 22.04):
+- Build dependency: freetds-dev
+- Runtime dependency: libsybdb5

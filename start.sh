@@ -44,6 +44,7 @@ if [ ! -f ${BABELFISH_DATA}/postgresql.conf ]; then
 		-c "CREATE DATABASE ${DATABASE} OWNER ${USERNAME};" \
 		-c "\c ${DATABASE}" \
 		-c "CREATE EXTENSION IF NOT EXISTS \"babelfishpg_tds\" CASCADE;" \
+		-c "CREATE EXTENSION IF NOT EXISTS \"tds_fdw\";" \
 		-c "GRANT ALL ON SCHEMA sys to ${USERNAME};" \
 		-c "ALTER USER ${USERNAME} CREATEDB;" \
 		-c "ALTER SYSTEM SET babelfishpg_tsql.database_name = '${DATABASE}';" \
